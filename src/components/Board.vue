@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-5">
+  <div class="pa-5 fill-height">
     <v-row class="fill-height">
       <v-col cols="3" v-for="stage in board.stages">
         <v-card
