@@ -10,7 +10,6 @@
     "@mdi/font": "6.2.95",
     "roboto-fontface": "*",
     "vue": "^3.4.21",
-    "vuedraggable": "^4.1.0",
     "vuetify": "^3.5.8"
   },
   "devDependencies": {
