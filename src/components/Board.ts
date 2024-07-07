@@ -13,6 +13,7 @@ export class Board {
 export class Stage {
   id: number;
   name: string;
+  highlighted: boolean
 
   constructor(name: string, id: number) {
     this.name = name;
@@ -24,10 +25,12 @@ export class Task {
   name: string;
   id: number;
   stageId: number;
+  dragging: boolean;
 
   constructor(name: string, id: number, stageId: number) {
     this.name = name;
     this.id = id;
     this.stageId = stageId;
+    this.dragging = false;
   }
 }
