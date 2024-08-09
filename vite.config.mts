@@ -43,5 +43,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      // '/api' is the endpoint you want to proxy
+      '/api': {
+        target: 'http://localhost:8080', // The target server URL
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') // Remove '/api' from the forwarded path
+      }
+    }
   },
 })

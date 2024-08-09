@@ -1,7 +1,7 @@
 <template>
   <div class="pa-5 fill-height">
     <v-row class="fill-height">
-      <v-col cols="3" v-for="stage in board.stages" >
+      <v-col cols="3" v-for="stage in stages" >
         <v-card
           class="py-1 fill-height drop-zone elevation-1"
           :color="stage.highlighted ? 'drop-highlight' : 'surface-variant'"
@@ -34,29 +34,27 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
-import {Stage, Board, Task} from './Board.ts';
+import {Ref, ref} from 'vue';
+import {Stage, Task} from './Board';
 import {VCard} from "vuetify/components";
+import {Api, StageDTO, TaskDTO} from "../api/Api";
 
-const tasks = ref([
-  new Task('Bat wing soup', 0, 0),
-  new Task('Spicy Octopus',1, 0),
-  new Task('Anything from Taco Bell',2, 0),
-  new Task('Pippo', 3, 1),
-  new Task('Pluto', 4, 2),
-  new Task('Hamburger',5, 3),
-  new Task('Pizza',6, 3),
-  new Task('Spaghetti',7, 3),
-  new Task('Tacos',8, 3),
-  new Task('Teriyaki Chicken', 9, 3)
-])
+const api = new Api();
+const tasks: Ref<Task[]> = ref([]);
+const stages: Ref<Stage[]> =  ref([])
 
 
-const inprogress = new Stage('In progress', 0);
-const review = new Stage('Review', 1)
-const done = new Stage('Done', 2)
-const todo = new Stage( 'To do', 3);
-const board = ref(new Board('My Board', [todo, inprogress, review, done], 0))
+api.stages.getStages({boardId: 0}).then(stagesResponse => {
+  stagesResponse.json().then((data: StageDTO[]) => {
+    stages.value = data.map(s => new Stage(s.id, s.name, s.boardId))
+  })
+})
+
+api.tasks.getTasks({boardId: 0}).then(tasksResponse => {
+  tasksResponse.json().then((data: TaskDTO[]) => {
+    tasks.value = data.map(t => new Task(t.id, t.name, t.description, t.stageId, t.boardId))
+  })
+})
 
 function getPreviewElement(task: Task) {
   const preview = document.getElementById('task-' + task.id).cloneNode(true) as HTMLElement;
@@ -72,8 +70,8 @@ function getPreviewElement(task: Task) {
 
 const startDrag = (evt: DragEvent, task: Task) => {
   evt.dataTransfer.dropEffect = 'move'
-  const preview = getPreviewElement(task);
-  evt.dataTransfer.setDragImage(preview, 0, 0)
+  // const preview = getPreviewElement(task);
+  // evt.dataTransfer.setDragImage(preview, 0, 0)
   evt.dataTransfer.setData('taskId', String(task.id))
   task.dragging = true
 }
@@ -83,6 +81,15 @@ const onDrop = (evt: DragEvent, stage: Stage) => {
   task.stageId = stage.id
   task.dragging = false
   stage.highlighted = false
+
+
+  api.task.postTask({
+    id: task.id,
+    name: task.name,
+    description: task.description,
+    stageId: task.stageId,
+    boardId: task.boardId
+  })
   // document.getElementById('drag-preview').remove()
 }
 
